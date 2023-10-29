@@ -1,0 +1,11 @@
+{
+	"folders": [
+		{
+			"path": "doctors-portal-client"
+		},
+		{
+			"path": "doctors-portal-server"
+		}
+	],
+	"settings": {}
+}
