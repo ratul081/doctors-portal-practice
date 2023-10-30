@@ -2,6 +2,7 @@ import React, { useContext, useState } from "react";
 import { useForm } from "react-hook-form";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { AuthContext } from "../../Contexts/AuthProvider";
+import axios from "axios";
 
 const SignUp = () => {
   const { createUser, googleSignIn, updateUserProfile } =
@@ -30,7 +31,7 @@ const SignUp = () => {
         console.log(userInfo);
         updateUserProfile(userInfo)
           .then(() => {
-            // saveUser(data.name, data.email);
+            saveUser(data.name, data.email);
           })
           .catch((err) => console.log(err));
         navigate(from, { replace: true });
@@ -49,6 +50,14 @@ const SignUp = () => {
       })
       .catch((error) => {});
   };
+
+  const saveUser = (name, email) => {
+    const user = { name, email };
+    axios
+      .post("http://localhost:5000/users", user)
+      .then((res) => setCreatedUserEmail(email));
+  };
+
   return (
     <div className="h-[800px] flex justify-center items-center">
       <div className="w-96 p-7">

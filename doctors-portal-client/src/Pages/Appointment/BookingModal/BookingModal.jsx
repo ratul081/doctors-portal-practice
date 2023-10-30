@@ -8,7 +8,7 @@ const BookingModal = ({
   treatmentDetails,
   setTreatmentDetails,
   selectedDate,
-  refetch
+  refetch,
 }) => {
   const { user } = useContext(AuthContext);
   const { name: treatmentName, slots, price } = treatmentDetails;
@@ -24,7 +24,7 @@ const BookingModal = ({
       patientName: name,
       patientEmail: email,
       bookedTreatment: treatmentName,
-      AppointmentDate: date,
+      appointmentDate: date,
       bookedSlot: slot,
       phone,
       price,
@@ -37,12 +37,15 @@ const BookingModal = ({
         console.log(res.data.data);
         if (res.data.data.acknowledged) {
           toast.success("Booked successfully");
+          refetch();
+          setTreatmentDetails("");
+        } else {
+          // console.log(res.data.data);
+          toast.error(res.data.data.message);
         }
       })
       .catch((err) => console.log(err));
 
-    setTreatmentDetails("");
-    refetch();
   };
   return (
     <div>

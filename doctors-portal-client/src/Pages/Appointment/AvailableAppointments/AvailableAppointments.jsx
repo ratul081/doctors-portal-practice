@@ -3,7 +3,11 @@ import React, { useState } from "react";
 import BookingModal from "../BookingModal/BookingModal";
 import AppointmentOptions from "./AppointmentOptions";
 
-const AvailableAppointments = ({ selectedDate, appointmentOptions,refetch }) => {
+const AvailableAppointments = ({
+  selectedDate,
+  appointmentOptions,
+  refetch,
+}) => {
   const [treatmentDetails, setTreatmentDetails] = useState([]);
   return (
     <div className="text-center my-12">

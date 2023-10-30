@@ -1,42 +1,87 @@
-import React from "react";
+import React, { useContext } from "react";
+import { useQuery } from "react-query";
+import { AuthContext } from "../../../Contexts/AuthProvider";
+import axios from "axios";
+import Loading from "../../../Components/Loading/Loading";
+import toast from "react-hot-toast";
 
 const MyAppointment = () => {
+  const { user } = useContext(AuthContext);
+  const email = user?.email;
+  const {
+    data: myAppointments = [],
+    isLoading,
+    refetch,
+  } = useQuery({
+    queryKey: ["myAppointment", email],
+    queryFn: () =>
+      axios.get(`http://localhost:5000/bookings?email=${email}`).then((res) => {
+        return res.data;
+      }),
+  });
+  // console.log(myAppointments.data);
+  const handleDeleteAppointments = (id) => {
+    axios
+      .delete(`http://localhost:5000/bookings/${id}`, { data: { email } })
+      .then((res) => {
+        if (res.data.acknowledged) {
+          toast.success("Deleted Successfully");
+          refetch();
+        }
+      });
+  };
+
+  const today = new Date().toUTCString().slice(5, 16);
   return (
     <div>
-      <div className="text-2xl my-5">My appointment</div>
+      <div className="text-2xl my-5 flex font-semibold justify-between">
+        <p>My appointment</p>
+        <div className="btn text-xl btn-outline">{today}</div>
+      </div>
       <div className="overflow-x-auto">
-        <table className="table table-zebra">
+        <table className="table text-xl table-zebra">
           {/* head */}
           <thead>
-            <tr>
+            <tr className="text-lg">
               <th></th>
-              <th>Name</th>
-              <th>Job</th>
-              <th>Favorite Color</th>
+              <th>Treatment</th>
+              <th>Time</th>
+              <th>Date</th>
+              <th></th>
             </tr>
           </thead>
-          <tbody>
+          <tbody className="font-semibold">
             {/* row 1 */}
-            <tr>
-              <th>1</th>
-              <td>Cy Ganderton</td>
-              <td>Quality Control Specialist</td>
-              <td>Blue</td>
-            </tr>
-            {/* row 2 */}
-            <tr>
-              <th>2</th>
-              <td>Hart Hagerty</td>
-              <td>Desktop Support Technician</td>
-              <td>Purple</td>
-            </tr>
-            {/* row 3 */}
-            <tr>
-              <th>3</th>
-              <td>Brice Swyre</td>
-              <td>Tax Accountant</td>
-              <td>Red</td>
-            </tr>
+            {isLoading && (
+              <tr>
+                <th></th>
+                <th></th>
+                <th>
+                  <Loading></Loading>
+                </th>
+              </tr>
+            )}
+            {myAppointments?.data &&
+              myAppointments?.data.map((myAppointment, i) => (
+                <tr key={myAppointment?._id}>
+                  <th>{i + 1}</th>
+                  <td>{myAppointment?.bookedTreatment}</td>
+                  <td>{myAppointment?.bookedSlot}</td>
+                  <td>{myAppointment?.appointmentDate}</td>
+                  <td>
+                    <button className="btn btn-secondary mx-2 text-white font-bold normal-case">
+                      Pay
+                    </button>
+                    <button
+                      onClick={() =>
+                        handleDeleteAppointments(myAppointment?._id)
+                      }
+                      className="btn btn-secondary mx-2 text-white font-bold normal-case">
+                      Delete
+                    </button>
+                  </td>
+                </tr>
+              ))}
           </tbody>
         </table>
       </div>
