@@ -4,8 +4,10 @@ import { AuthContext } from "../../../Contexts/AuthProvider";
 import axios from "axios";
 import Loading from "../../../Components/Loading/Loading";
 import toast from "react-hot-toast";
+import useAxiosSecure from "../../../hooks/useAxiosSecure";
 
 const MyAppointment = () => {
+  const [axiosSecure] = useAxiosSecure();
   const { user } = useContext(AuthContext);
   const email = user?.email;
   const {
@@ -15,20 +17,18 @@ const MyAppointment = () => {
   } = useQuery({
     queryKey: ["myAppointment", email],
     queryFn: () =>
-      axios.get(`http://localhost:5000/bookings?email=${email}`).then((res) => {
-        return res.data;
+      axiosSecure.get(`/bookings?email=${email}`).then((res) => {
+        return res.data.data;
       }),
   });
   // console.log(myAppointments.data);
   const handleDeleteAppointments = (id) => {
-    axios
-      .delete(`http://localhost:5000/bookings/${id}`, { data: { email } })
-      .then((res) => {
-        if (res.data.acknowledged) {
-          toast.success("Deleted Successfully");
-          refetch();
-        }
-      });
+    axiosSecure.delete(`/bookings/${id}`, { data: { email } }).then((res) => {
+      if (res.data.acknowledged) {
+        toast.success("Deleted Successfully");
+        refetch();
+      }
+    });
   };
 
   const today = new Date().toUTCString().slice(5, 16);
@@ -61,8 +61,8 @@ const MyAppointment = () => {
                 </th>
               </tr>
             )}
-            {myAppointments?.data &&
-              myAppointments?.data.map((myAppointment, i) => (
+            {myAppointments &&
+              myAppointments?.map((myAppointment, i) => (
                 <tr key={myAppointment?._id}>
                   <th>{i + 1}</th>
                   <td>{myAppointment?.bookedTreatment}</td>
@@ -76,7 +76,7 @@ const MyAppointment = () => {
                       onClick={() =>
                         handleDeleteAppointments(myAppointment?._id)
                       }
-                      className="btn btn-secondary mx-2 text-white font-bold normal-case">
+                      className="btn btn-error mx-2 text-white font-bold normal-case">
                       Delete
                     </button>
                   </td>

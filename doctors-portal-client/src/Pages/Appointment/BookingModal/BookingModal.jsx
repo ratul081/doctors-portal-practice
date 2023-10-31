@@ -3,6 +3,7 @@ import React, { useContext } from "react";
 import { AuthContext } from "../../../Contexts/AuthProvider";
 import axios from "axios";
 import toast from "react-hot-toast";
+import useAxiosSecure from "../../../hooks/useAxiosSecure";
 
 const BookingModal = ({
   treatmentDetails,
@@ -10,6 +11,7 @@ const BookingModal = ({
   selectedDate,
   refetch,
 }) => {
+  const [axiosSecure] = useAxiosSecure();
   const { user } = useContext(AuthContext);
   const { name: treatmentName, slots, price } = treatmentDetails;
   const date = format(selectedDate, "PP");
@@ -31,8 +33,8 @@ const BookingModal = ({
     };
     //putting bookingDetails to mongo database
 
-    axios
-      .post("http://localhost:5000/bookings", bookingDetails)
+    axiosSecure
+      .post("/bookings", bookingDetails)
       .then((res) => {
         console.log(res.data.data);
         if (res.data.data.acknowledged) {
@@ -45,7 +47,6 @@ const BookingModal = ({
         }
       })
       .catch((err) => console.log(err));
-
   };
   return (
     <div>

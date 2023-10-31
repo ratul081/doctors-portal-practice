@@ -16,8 +16,8 @@ const AvailableAppointments = ({
       </p>
       <p className="text-xl">Please select a service.</p>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mt-6">
-        {appointmentOptions.data &&
-          appointmentOptions?.data.map((appointmentOption, i) => (
+        {appointmentOptions &&
+          appointmentOptions?.map((appointmentOption, i) => (
             <AppointmentOptions
               key={i}
               appointmentOption={appointmentOption}

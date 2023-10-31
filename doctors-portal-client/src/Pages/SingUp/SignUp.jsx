@@ -3,12 +3,14 @@ import { useForm } from "react-hook-form";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { AuthContext } from "../../Contexts/AuthProvider";
 import axios from "axios";
+import useAxiosSecure from "../../hooks/useAxiosSecure";
 
 const SignUp = () => {
+  const [axiosSecure] = useAxiosSecure();
   const { createUser, googleSignIn, updateUserProfile } =
     useContext(AuthContext);
   const [signUpError, setSignUPError] = useState("");
-  const [createdUserEmail, setCreatedUserEmail] = useState("");
+  // const [createdUserEmail, setCreatedUserEmail] = useState("");
   const {
     register,
     handleSubmit,
@@ -27,8 +29,7 @@ const SignUp = () => {
         const userInfo = {
           displayName: data.name,
         };
-
-        console.log(userInfo);
+        // console.log(userInfo);
         updateUserProfile(userInfo)
           .then(() => {
             saveUser(data.name, data.email);
@@ -53,9 +54,7 @@ const SignUp = () => {
 
   const saveUser = (name, email) => {
     const user = { name, email };
-    axios
-      .post("http://localhost:5000/users", user)
-      .then((res) => setCreatedUserEmail(email));
+    axiosSecure.post("/users", user).then((res) => console.log(res.data));
   };
 
   return (

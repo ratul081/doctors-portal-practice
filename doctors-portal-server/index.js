@@ -3,6 +3,7 @@ const app = express()
 const port = process.env.PORT || 5000
 const cors = require('cors')
 const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
+const jwt = require('jsonwebtoken');
 app.use(cors())
 app.use(express.json())
 require('dotenv').config()
@@ -45,9 +46,56 @@ const bookings = database.collection("doctors_portal_bookings")
 const payment = database.collection("doctors_portal_payment")
 
 
+//middleware
 
+const verifyJWT = (req, res, next) => {
+  const authorization = req.headers.authorization
+  // console.log("🚀 ~ file: index.js:53 ~ verifyJWT ~ authorization:", authorization)
+  if (!authorization) {
+    return res.status(401).send({
+      error: true,
+      message: "Invalid authorization"
+    })
+  }
+  const token = authorization.split(" ")[1]
+  // console.log("🚀 ~ file: index.js:61 ~ verifyJWT ~ token:", token)
+
+  jwt.verify(token, process.env.ACCESS_TOKEN_SECRET_KEY, (err, decoded) => {
+    // console.log("🚀 ~ file: index.js:63 ~ jwt.verify ~ token:", token)
+    if (err) {
+      return res.status(401).send({
+        error: true,
+        message: "Invalid authorization"
+      })
+    }
+    req.decoded = decoded
+    next()
+  })
+
+}
+
+const verifyAdmin = async (req, res, next) => {
+  const email = req.decoded.email
+  const query = { email: email }
+  const user = await allUsers.findOne(query)
+  // console.log("🚀 ~ file: index.js:82 ~ verifyAdmin ~ user:", user)
+  if (user?.role !== "admin") {
+    return res.status(401).send({
+      error: true,
+      message: "Invalid authorization"
+    })
+  }
+  next()
+}
 //endpoints
 
+app.post("/jwt", (req, res) => {
+  const user = req.body
+  const token = jwt.sign(user, process.env.ACCESS_TOKEN_SECRET_KEY, { expiresIn: '1h' })
+  res.send({ token })
+})
+
+//users endpoints
 app.get('/appointmentOptions', async (req, res) => {
   try {
     const date = req.query.date;
@@ -81,9 +129,16 @@ app.get('/appointmentOptions', async (req, res) => {
 })
 
 
-app.get("/bookings", async (req, res) => {
+app.get("/bookings", verifyJWT, async (req, res) => {
   try {
     const email = req.query.email
+    const decodedEmail = req.decoded.email
+    if (email !== decodedEmail) {
+      return res.status(401).send({
+        error: true,
+        message: "Forbidden access"
+      })
+    }
     const query = { patientEmail: email }
     const result = await bookings.find(query).toArray()
     res.send({
@@ -100,8 +155,7 @@ app.get("/bookings", async (req, res) => {
   }
 })
 
-
-app.post("/bookings", async (req, res) => {
+app.post("/bookings", verifyJWT, async (req, res) => {
   try {
     const bookingDetails = req.body
     const query = {
@@ -110,7 +164,6 @@ app.post("/bookings", async (req, res) => {
       bookedTreatment: bookingDetails.bookedTreatment,
     }
     const alreadyBooked = await bookings.find(query).toArray()
-    console.log("🚀 ~ file: index.js:113 ~ app.post ~ alreadyBooked:", alreadyBooked)
     const bookedSlots = {
       patientEmail: bookingDetails.patientEmail,
       appointmentDate: bookingDetails.appointmentDate,
@@ -136,7 +189,7 @@ app.post("/bookings", async (req, res) => {
     });
   }
 })
-app.delete("/bookings/:id", async (req, res) => {
+app.delete("/bookings/:id", verifyJWT, async (req, res) => {
   try {
     const id = req.params.id
     const email = req.body.email
@@ -153,7 +206,27 @@ app.delete("/bookings/:id", async (req, res) => {
   }
 
 })
-app.post("/users", async (req, res) => {
+
+app.get("/allUsers", verifyJWT, verifyAdmin, async (req, res) => {
+  try {
+    const query = {}
+    const result = await allUsers.find(query).toArray();
+    // console.log("🚀 ~ file: index.js:203 ~ app.get ~ result:", result)
+    res.send({
+      status: true,
+      massage: "Successfully got the data",
+      data: result,
+    });
+  } catch (error) {
+    console.log(error.name.bgRed, error.message.bold);
+    res.send({
+      success: false,
+      error: error.message,
+    });
+  }
+})
+
+app.post("/users", verifyJWT, async (req, res) => {
   try {
     const user = req.body
     const result = await allUsers.insertOne(user)
@@ -172,6 +245,50 @@ app.post("/users", async (req, res) => {
   }
 })
 
+app.patch("/users/:id", verifyJWT, verifyAdmin, async (req, res) => {
+  try {
+    const id = req.params.id;
+    const filter = { _id: new ObjectId(id) }
+    const updateDoc = {
+      $set: {
+        role: "admin",
+      }
+    }
+    const upsert = true
+    const result = await allUsers.updateOne(filter, updateDoc, upsert)
+    res.send({
+      status: true,
+      massage: "Successfully got the data",
+      data: result,
+    });
+  }
+  catch (error) {
+    console.log(error.name.bgRed, error.message.bold);
+    res.send({
+      success: false,
+      error: error.message,
+    });
+  }
+})
+app.delete("/users/:id", verifyJWT, verifyAdmin, async (req, res) => {
+  try {
+    const id = req.params.id;
+    const query = { _id: new ObjectId(id) }
+    const result = await allUsers.deleteOne(query)
+    res.send({
+      status: true,
+      massage: "Successfully got the data",
+      data: result,
+    });
+  }
+  catch (error) {
+    console.log(error.name.bgRed, error.message.bold);
+    res.send({
+      success: false,
+      error: error.message,
+    });
+  }
+})
 
 app.get('/', (req, res) => {
   res.send('Doctors Portal server is running')
