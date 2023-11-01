@@ -24,7 +24,7 @@ const SignUp = () => {
     createUser(data.email, data.password)
       .then((result) => {
         const user = result.user;
-        console.log(user);
+        // console.log(user);
         // toast("User Created Successfully.");
         const userInfo = {
           displayName: data.name,
@@ -38,7 +38,7 @@ const SignUp = () => {
         navigate(from, { replace: true });
       })
       .catch((error) => {
-        console.log(error);
+        // console.log(error);
         setSignUPError(error.message);
       });
   };

@@ -1,143 +1,86 @@
 import React from "react";
+import { useQuery } from "react-query";
+import useAxiosSecure from "../../../hooks/useAxiosSecure";
+import Loading from "../../../Components/Loading/Loading";
 
 const ManageDoctors = () => {
+  const [axiosSecure] = useAxiosSecure();
+  const {
+    data: doctors = [],
+    isLoading,
+    refetch,
+  } = useQuery({
+    queryKey: ["doctors"],
+    queryFn: async () =>
+      await axiosSecure.get("/doctors").then((res) => {
+        return res.data.data;
+      }),
+  });
+  // console.log(doctors);
+  const handleDeleteDoctor = (id) => {
+    axiosSecure.delete(`/doctors/${id}`, { data: { id } }).then((res) => {
+      console.log(res.data);
+      if (res.data.data.acknowledged) {
+        toast.success("Deleted Successfully");
+        refetch();
+      }
+    });
+  };
   return (
-    <div>
-      <div className="overflow-x-auto">
-        <table className="table">
-          {/* head */}
-          <thead>
+    <div className="overflow-x-auto">
+      <table className="table text-xl">
+        <thead className="text-lg">
+          <tr>
+            <th></th>
+            <th>Name</th>
+            <th>Email</th>
+            <th>Specialty</th>
+            <th></th>
+          </tr>
+        </thead>
+
+        <tbody className="font-semibold">
+          {isLoading && (
             <tr>
-              <th>Name</th>
-              <th>Speciality</th>
-              <th>Favorite Color</th>
               <th></th>
-            </tr>
-          </thead>
-          <tbody>
-            {/* row 1 */}
-            <tr>
-              <td>
-                <div className="flex items-center space-x-3">
-                  <div className="avatar">
-                    <div className="mask mask-squircle w-12 h-12">
-                      <img
-                        src="/tailwind-css-component-profile-2@56w.png"
-                        alt="Avatar Tailwind CSS Component"
-                      />
-                    </div>
-                  </div>
-                  <div>
-                    <div className="font-bold">Hart Hagerty</div>
-                    <div className="text-sm opacity-50">United States</div>
-                  </div>
-                </div>
-              </td>
-              <td>
-                Zemlak, Daniel and Leannon
-                <br />
-                <span className="badge badge-ghost badge-sm">
-                  Desktop Support Technician
-                </span>
-              </td>
-              <td>Purple</td>
+              <th></th>
               <th>
-                <button className="btn btn-ghost btn-xs">details</button>
+                <Loading></Loading>
               </th>
             </tr>
-            {/* row 2 */}
-            <tr>
-              <td>
-                <div className="flex items-center space-x-3">
-                  <div className="avatar">
-                    <div className="mask mask-squircle w-12 h-12">
-                      <img
-                        src="/tailwind-css-component-profile-3@56w.png"
-                        alt="Avatar Tailwind CSS Component"
-                      />
+          )}
+          {doctors &&
+            doctors.map((doctor, i) => (
+              <tr key={doctor?._id}>
+                <th>{i + 1}</th>
+                <td>
+                  <div className="flex items-center space-x-3">
+                    <div className="avatar">
+                      <div className="mask mask-squircle w-12 h-12">
+                        <img
+                          src={doctor?.doctors_image}
+                          alt={doctor?.doctors_name}
+                        />
+                      </div>
+                    </div>
+                    <div>
+                      <div className="font-bold">{doctor?.doctors_name}</div>
                     </div>
                   </div>
-                  <div>
-                    <div className="font-bold">Brice Swyre</div>
-                    <div className="text-sm opacity-50">China</div>
-                  </div>
-                </div>
-              </td>
-              <td>
-                Carroll Group
-                <br />
-                <span className="badge badge-ghost badge-sm">
-                  Tax Accountant
-                </span>
-              </td>
-              <td>Red</td>
-              <th>
-                <button className="btn btn-ghost btn-xs">details</button>
-              </th>
-            </tr>
-            {/* row 3 */}
-            <tr>
-              <td>
-                <div className="flex items-center space-x-3">
-                  <div className="avatar">
-                    <div className="mask mask-squircle w-12 h-12">
-                      <img
-                        src="/tailwind-css-component-profile-4@56w.png"
-                        alt="Avatar Tailwind CSS Component"
-                      />
-                    </div>
-                  </div>
-                  <div>
-                    <div className="font-bold">Marjy Ferencz</div>
-                    <div className="text-sm opacity-50">Russia</div>
-                  </div>
-                </div>
-              </td>
-              <td>
-                Rowe-Schoen
-                <br />
-                <span className="badge badge-ghost badge-sm">
-                  Office Assistant I
-                </span>
-              </td>
-              <td>Crimson</td>
-              <th>
-                <button className="btn btn-ghost btn-xs">details</button>
-              </th>
-            </tr>
-            {/* row 4 */}
-            <tr>
-              <td>
-                <div className="flex items-center space-x-3">
-                  <div className="avatar">
-                    <div className="mask mask-squircle w-12 h-12">
-                      <img
-                        src="/tailwind-css-component-profile-5@56w.png"
-                        alt="Avatar Tailwind CSS Component"
-                      />
-                    </div>
-                  </div>
-                  <div>
-                    <div className="font-bold">Yancy Tear</div>
-                    <div className="text-sm opacity-50">Brazil</div>
-                  </div>
-                </div>
-              </td>
-              <td>
-                Wyman-Ledner
-                <br />
-                <span className="badge badge-ghost badge-sm">
-                  Community Outreach Specialist
-                </span>
-              </td>
-              <td>Indigo</td>
-              <th>
-                <button className="btn btn-ghost btn-xs">details</button>
-              </th>
-            </tr>
-          </tbody>
-        </table>
-      </div>
+                </td>
+                <td>{doctor?.doctors_email}</td>
+                <td>{doctor?.doctors_specialty}</td>
+                <th>
+                  <button
+                    onClick={() => handleDeleteDoctor(doctor?._id)}
+                    className="btn btn-error btn-xs">
+                    Delete
+                  </button>
+                </th>
+              </tr>
+            ))}
+        </tbody>
+      </table>
     </div>
   );
 };

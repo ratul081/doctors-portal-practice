@@ -43,6 +43,7 @@ const database = client.db("doctors_portal");
 const appointmentOptions = database.collection("doctors_portal_appointmentOptions")
 const allUsers = database.collection("doctors_portal_AllUsers")
 const bookings = database.collection("doctors_portal_bookings")
+const doctors = database.collection("doctors_portal_doctors")
 const payment = database.collection("doctors_portal_payment")
 
 
@@ -178,7 +179,7 @@ app.post("/bookings", verifyJWT, async (req, res) => {
     const result = await bookings.insertOne(bookingDetails);
     res.send({
       status: true,
-      massage: "Successfully got the data",
+      massage: "Successfully Changed the data",
       data: result,
     });
   } catch (error) {
@@ -196,7 +197,11 @@ app.delete("/bookings/:id", verifyJWT, async (req, res) => {
     // console.log("🚀 ~ file: index.js:144 ~ app.delete ~ email:", email)
     const query = { _id: new ObjectId(id), patientEmail: email }
     const result = await bookings.deleteOne(query);
-    res.send(result);
+    res.send({
+      status: true,
+      massage: "Successfully deleted the data",
+      data: result,
+    });
   } catch (error) {
     console.log(error.name.bgRed, error.message.bold);
     res.send({
@@ -289,6 +294,87 @@ app.delete("/users/:id", verifyJWT, verifyAdmin, async (req, res) => {
     });
   }
 })
+
+app.get("/users/admin/:email", verifyJWT, verifyAdmin, async (req, res) => {
+  try {
+    const email = req.params.email;
+    // console.log("🚀 ~ file: index.js:296 ~ app.get ~ email:", email)
+    if (req.decoded.email !== email) {
+      res.send({ isAdmin: false })
+    }
+
+    const query = { email }
+    const user = await allUsers.findOne(query);
+    const result = { isAdmin: user?.role === 'admin' }
+    // console.log("🚀 ~ file: index.js:303 ~ app.get ~ user:", user)
+    res.send(result);
+    // console.log("🚀 ~ file: index.js:304 ~ app.get ~ result:", result)
+  } catch (error) {
+    console.log(error.name.bgRed, error.message.bold);
+    res.send({
+      success: false,
+      error: error.message,
+    });
+  }
+})
+
+app.post("/add-doctors", verifyJWT, verifyAdmin, async (req, res) => {
+  try {
+    const doctorsDetails = req.body
+    const result = await doctors.insertOne(doctorsDetails)
+    console.log("🚀 ~ file: index.js:321 ~ app.post ~ result:", result)
+    res.send({
+      status: true,
+      massage: "Successfully got the data",
+      data: result,
+    });
+
+  } catch (error) {
+    console.log(error.name.bgRed, error.message.bold);
+    res.send({
+      success: false,
+      error: error.message,
+    });
+  }
+})
+
+app.get("/doctors", verifyJWT, verifyAdmin, async (req, res) => {
+  try {
+    const query = {}
+    const result = await doctors.find(query).toArray()
+    res.send({
+      status: true,
+      massage: "Successfully got the data",
+      data: result,
+    });
+  } catch (error) {
+    console.log(error.name.bgRed, error.message.bold);
+    res.send({
+      success: false,
+      error: error.message,
+    });
+  }
+})
+
+app.delete("/doctors/:id", verifyJWT, verifyAdmin, async (req, res) => {
+  try {
+    const id = req.params.id
+    const query = { _id: new ObjectId(id) }
+    const result = await doctors.deleteOne(query)
+    res.send({
+      status: true,
+      massage: "Successfully deleted the data",
+      data: result,
+    });
+  } catch (error) {
+    console.log(error.name.bgRed, error.message.bold);
+    res.send({
+      success: false,
+      error: error.message,
+    });
+  }
+})
+
 
 app.get('/', (req, res) => {
   res.send('Doctors Portal server is running')

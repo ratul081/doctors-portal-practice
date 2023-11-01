@@ -10,6 +10,7 @@ import Home from "../Pages/Home/Home";
 import LogIn from "../Pages/Login/Login";
 import SignUp from "../Pages/SingUp/SignUp";
 import PrivateRoutes from "./PrivateRoutes";
+import AdminRoutes from "./AdminRoutes";
 
 export const router = createBrowserRouter([
   {
@@ -25,7 +26,7 @@ export const router = createBrowserRouter([
         element: (
           <PrivateRoutes>
             <Appointment></Appointment>
-          </PrivateRoutes> 
+          </PrivateRoutes>
         ),
       },
       {
@@ -48,15 +49,27 @@ export const router = createBrowserRouter([
       },
       {
         path: "/dashboard/all-users",
-        element: <AllUsers></AllUsers>,
+        element: (
+          <AdminRoutes>
+            <AllUsers></AllUsers>
+          </AdminRoutes>
+        ),
       },
       {
         path: "/dashboard/add-doctors",
-        element: <AddDoctors></AddDoctors>,
+        element: (
+          <AdminRoutes>
+            <AddDoctors></AddDoctors>
+          </AdminRoutes>
+        ),
       },
       {
         path: "/dashboard/manage-Doctors",
-        element: <ManageDoctors></ManageDoctors>,
+        element: (
+          <AdminRoutes>
+            <ManageDoctors></ManageDoctors>
+          </AdminRoutes>
+        ),
       },
     ],
   },

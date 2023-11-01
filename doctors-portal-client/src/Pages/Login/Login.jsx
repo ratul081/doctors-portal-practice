@@ -16,17 +16,17 @@ const Login = () => {
   const [loginError, setLoginError] = useState("");
   const [loginUserEmail, setLoginUserEmail] = useState("");
   const handleLogin = (data) => {
-    console.log(data);
+    // console.log(data);
     setLoginError("");
     signIn(data.email, data.password)
       .then((result) => {
         const user = result.user;
-        console.log(user);
+        // console.log(user);
         setLoginUserEmail(data.email);
         navigate(from, { replace: true });
       })
       .catch((error) => {
-        console.log(error.message);
+        // console.log(error.message);
         setLoginError(error.message);
       });
   };

@@ -1,9 +1,13 @@
 import React, { useContext } from "react";
 import { Link } from "react-router-dom";
 import { AuthContext } from "../../Contexts/AuthProvider";
+
+
+
+
 const Header = () => {
   const { user, logOut } = useContext(AuthContext);
-  // console.log("🚀 ~ file: Header.jsx:6 ~ Header ~ logOut:", logOut); 
+  // console.log("🚀 ~ file: Header.jsx:6 ~ Header ~ logOut:", logOut);
 
   const handleLogOut = () => {
     logOut()
@@ -12,7 +16,6 @@ const Header = () => {
       })
       .catch((err) => console.log(err));
   };
-
   const menuItems = (
     <>
       <li>
@@ -71,7 +74,9 @@ const Header = () => {
         </Link>
       </div>
       <div className="navbar-center hidden lg:flex">
-        <ul className="menu menu-horizontal text-lg font-semibold py-2">{menuItems}</ul>
+        <ul className="menu menu-horizontal text-lg font-semibold py-2">
+          {menuItems}
+        </ul>
       </div>
       <label
         htmlFor="dashboard-drawer"

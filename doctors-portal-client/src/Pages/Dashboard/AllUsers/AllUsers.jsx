@@ -17,7 +17,7 @@ const AllUsers = () => {
   const handleMakeAdmin = (user) => {
     axiosSecure.patch(`/users/${user?._id}`).then((res) => {
       refetch();
-      console.log(res);
+      // console.log(res);
       if (res.data.data.acknowledged) {
         toast.success(`${user.name} is now admin`);
       }

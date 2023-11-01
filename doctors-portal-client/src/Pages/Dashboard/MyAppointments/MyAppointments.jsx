@@ -22,9 +22,9 @@ const MyAppointment = () => {
       }),
   });
   // console.log(myAppointments.data);
-  const handleDeleteAppointments = (id) => {
+  const handleDeleteAppointment = (id) => {
     axiosSecure.delete(`/bookings/${id}`, { data: { email } }).then((res) => {
-      if (res.data.acknowledged) {
+      if (res.data.data.acknowledged) {
         toast.success("Deleted Successfully");
         refetch();
       }
@@ -74,7 +74,7 @@ const MyAppointment = () => {
                     </button>
                     <button
                       onClick={() =>
-                        handleDeleteAppointments(myAppointment?._id)
+                        handleDeleteAppointment(myAppointment?._id)
                       }
                       className="btn btn-error mx-2 text-white font-bold normal-case">
                       Delete

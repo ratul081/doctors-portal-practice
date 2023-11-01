@@ -1,8 +1,7 @@
 import { format } from "date-fns";
 import React, { useContext } from "react";
-import { AuthContext } from "../../../Contexts/AuthProvider";
-import axios from "axios";
 import toast from "react-hot-toast";
+import { AuthContext } from "../../../Contexts/AuthProvider";
 import useAxiosSecure from "../../../hooks/useAxiosSecure";
 
 const BookingModal = ({
