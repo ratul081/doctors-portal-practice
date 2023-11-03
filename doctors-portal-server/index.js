@@ -5,6 +5,9 @@ const cors = require('cors')
 const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 const jwt = require('jsonwebtoken');
 app.use(cors())
+// app.use(cors(
+//   { origin: 'https://doctors-portal-aa301.web.app/appointment' }
+// ))
 app.use(express.json())
 require('dotenv').config()
 require('colors')
@@ -133,6 +136,7 @@ app.get('/appointmentOptions', async (req, res) => {
 app.get("/bookings", verifyJWT, async (req, res) => {
   try {
     const email = req.query.email
+    console.log("🚀 ~ file: index.js:139 ~ app.get ~ email:", email)
     const decodedEmail = req.decoded.email
     if (email !== decodedEmail) {
       return res.status(401).send({
@@ -231,7 +235,7 @@ app.get("/allUsers", verifyJWT, verifyAdmin, async (req, res) => {
   }
 })
 
-app.post("/users", verifyJWT, async (req, res) => {
+app.post("/users", async (req, res) => {
   try {
     const user = req.body
     const result = await allUsers.insertOne(user)
@@ -295,7 +299,7 @@ app.delete("/users/:id", verifyJWT, verifyAdmin, async (req, res) => {
   }
 })
 
-app.get("/users/admin/:email", verifyJWT, verifyAdmin, async (req, res) => {
+app.get("/users/admin/:email", verifyJWT, async (req, res) => {
   try {
     const email = req.params.email;
     // console.log("🚀 ~ file: index.js:296 ~ app.get ~ email:", email)

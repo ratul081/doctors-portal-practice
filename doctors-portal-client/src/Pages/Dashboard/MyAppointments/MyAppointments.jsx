@@ -8,7 +8,7 @@ import useAxiosSecure from "../../../hooks/useAxiosSecure";
 
 const MyAppointment = () => {
   const [axiosSecure] = useAxiosSecure();
-  const { user } = useContext(AuthContext);
+  const { user, loading } = useContext(AuthContext);
   const email = user?.email;
   const {
     data: myAppointments = [],
@@ -16,6 +16,7 @@ const MyAppointment = () => {
     refetch,
   } = useQuery({
     queryKey: ["myAppointment", email],
+    enabled: !loading,
     queryFn: () =>
       axiosSecure.get(`/bookings?email=${email}`).then((res) => {
         return res.data.data;

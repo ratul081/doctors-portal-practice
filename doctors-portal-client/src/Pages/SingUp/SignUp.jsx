@@ -1,12 +1,10 @@
+import axios from "axios";
 import React, { useContext, useState } from "react";
 import { useForm } from "react-hook-form";
-import { Link, useLocation, useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { AuthContext } from "../../Contexts/AuthProvider";
-import axios from "axios";
-import useAxiosSecure from "../../hooks/useAxiosSecure";
 
 const SignUp = () => {
-  const [axiosSecure] = useAxiosSecure();
   const { createUser, googleSignIn, updateUserProfile } =
     useContext(AuthContext);
   const [signUpError, setSignUPError] = useState("");
@@ -16,9 +14,8 @@ const SignUp = () => {
     handleSubmit,
     formState: { errors },
   } = useForm();
-  const location = useLocation();
   const navigate = useNavigate();
-  const from = location.state?.from?.pathname || "/";
+
   const handleSignUp = (data) => {
     setSignUPError("");
     createUser(data.email, data.password)
@@ -35,7 +32,7 @@ const SignUp = () => {
             saveUser(data.name, data.email);
           })
           .catch((err) => console.log(err));
-        navigate(from, { replace: true });
+        navigate("/");
       })
       .catch((error) => {
         // console.log(error);
@@ -47,14 +44,19 @@ const SignUp = () => {
       .then((result) => {
         const user = result.user;
         console.log(user);
-        navigate(from, { replace: true });
+        navigate("/");
       })
       .catch((error) => {});
   };
 
   const saveUser = (name, email) => {
     const user = { name, email };
-    axiosSecure.post("/users", user).then((res) => console.log(res.data));
+    axios
+      .post(
+        "https://doctors-portal-server-ratul081.vercel.app/users",
+        user
+      )
+      .then((res) => console.log(res.data));
   };
 
   return (
